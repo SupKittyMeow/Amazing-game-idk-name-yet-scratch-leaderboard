@@ -1,0 +1,29 @@
+name: Python Script Execution
+
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: '55 */5 * * *' # Every 5 hours 55 mins
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+  SCRATCH_SESSION_ID: ${{ secrets.SCRATCH_SESSION_ID }}
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    - run: pip install -r requirements.txt
+    - name: Execute Python script
+      run: python main.py

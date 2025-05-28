@@ -1,6 +1,5 @@
 #TODO: show which character was used
 #TODO: show leaderboard based on argument1 which is starting point
-#TODO: tw support (same script + database?)
 
 from supabase import create_client, Client
 from warnings import filterwarnings
@@ -12,9 +11,9 @@ load_dotenv()
 
 filterwarnings('ignore', category=sa.LoginDataWarning)
 
-url = os.getenv("URL")
-key = os.getenv("SERVICE_ROLE")
-session_id = os.getenv("SESSION_ID")
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_SERVICE_ROLE")
+session_id = os.getenv("SCRATCH_SESSION_ID")
 
 if url is None or key is None:
     raise ValueError("Supabase URL and KEY must be set in environment variables.")
