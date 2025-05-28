@@ -1,0 +1,3 @@
+supabase==2.15.1
+scratchattach==2.1.13
+python-dotenv==1.1.0

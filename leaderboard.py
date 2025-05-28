@@ -5,13 +5,21 @@
 from supabase import create_client, Client
 from warnings import filterwarnings
 import scratchattach as sa
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 filterwarnings('ignore', category=sa.LoginDataWarning)
 
 url = os.getenv("URL")
-key = os.getenv("KEY")
+key = os.getenv("SERVICE_ROLE")
 session_id = os.getenv("SESSION_ID")
+
+if url is None or key is None:
+    raise ValueError("Supabase URL and KEY must be set in environment variables.")
+if session_id is None:
+    raise ValueError("SESSION_ID must be set in environment variables.")
 
 session = sa.login_by_id(session_id, username="SupKittyMeow")
 cloud = session.connect_cloud("1175964459")
@@ -36,7 +44,6 @@ def add_score(argument1, argument2): # sets the score of the user to the second 
 @client.request
 def get_score(argument1): # retrieve a user's score
     response = supabase.table("leaderboard").select("*").eq("Username", argument1).execute() 
-
     # Check if the player exists in the leaderboard
     if response.data:
         # If player exists, return the data
@@ -47,23 +54,31 @@ def get_score(argument1): # retrieve a user's score
     
 @client.request
 def reset_score(argument1): # deletes the user's score from the database
-    supabase.table("leaderboard").delete().eq("Username", argument1).execute()  
+    supabase.table("leaderboard").delete().eq("Username", argument1).execute()
+    return "RESET"
 
 @client.request
-def get_leaderboard(): # returns a list of the top 10 scores
+def get_leaderboard(leaderboardStart): # returns a list of the top 10 scores
+    leaderboardStart = int(leaderboardStart)
     response = (
         supabase
         .table("leaderboard")
         .select('"Username","Max kills"')
         .order('"Max kills"', desc=True)
-        .limit(5)
+        .order("Username", desc=False)
+        .range(leaderboardStart, leaderboardStart + 4)
         .execute()
     )
+
+    # Get total count of rows (excluding header, if you have one as a row)
+    count_response = supabase.table("leaderboard").select("Username", count="exact").execute() #type: ignore
+    total_players = count_response.count or 0
 
     if response.data:
         leaderboard_list = [
             f"{item['Username']}: {item['Max kills']}" for item in response.data
         ]
+        leaderboard_list.append(str(total_players))
         return leaderboard_list
     else:
         return []
