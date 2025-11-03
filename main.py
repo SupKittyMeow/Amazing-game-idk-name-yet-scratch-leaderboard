@@ -49,18 +49,18 @@ def get_score(argument1): # retrieve a user's score
     
 @client.request
 def reset_score(argument1): # deletes the user's score from the database
-    redis.delete(argument1)
+    redis.zrem('leaderboard', argument1)
     return "RESET"
 
 @client.request
 def get_leaderboard(leaderboardStart): # returns a list of the top 10 scores
     leaderboardStart = int(leaderboardStart)
 
-    descending_users = redis.zrange('leaderboard', leaderboardStart, leaderboardStart + 4, withscores=True)
-
+    descending_users = redis.zrange('leaderboard', leaderboardStart, leaderboardStart + 4, withscores=True, rev=True)
+    print(descending_users)
     if descending_users is not None:
         leaderboard_list = [ f"{user[0]}: {int(user[1])}" for user in descending_users ]
-        leaderboard_list.append(str(len(descending_users)))
+        leaderboard_list.append(str(redis.zcard('leaderboard')))
         return leaderboard_list
     else:
         return []
