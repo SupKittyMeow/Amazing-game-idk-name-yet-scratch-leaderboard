@@ -19,9 +19,9 @@ client = cloud.requests()
 
 @client.event
 def on_ready(): # just to make sure everything is working
-    print("Request handler is running")
+    print("Request handler is running", flush=True)
     if redis.ping() == "PONG":
-        print("Redis is running!")
+        print("Redis is running!", flush=True)
 
 @client.request
 def ping(): # sends back 'pong' to the Scratch project
