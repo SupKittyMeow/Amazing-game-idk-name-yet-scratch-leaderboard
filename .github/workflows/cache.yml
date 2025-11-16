@@ -1,4 +1,6 @@
 name: Cache Pip Packages
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
